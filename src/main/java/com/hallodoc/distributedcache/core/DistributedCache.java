@@ -1,9 +1,6 @@
 package com.hallodoc.distributedcache.core;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -48,19 +45,9 @@ public final class DistributedCache {
 	}
 
 	public List<String> get(List<CacheAttribute> cacheFilters) {
-		List<String> keyList = null;
-		for (Map.Entry<String, List<DistributedCacheAttribute>> entryObj : repository.entrySet()) {
-			for (CacheAttribute cacheAttribute : cacheFilters) {
-				if (entryObj.getValue().contains(new DistributedCacheAttribute(cacheAttribute.getAttributeName(),
-						cacheAttribute.getAttributeValue()))) {
-					if (keyList == null) {
-						keyList = new ArrayList<String>();
-					}
-					keyList.add(cacheAttribute.getAttributeName());
-				}
-			}
-		}
-		return keyList == null ? Collections.emptyList() : keyList;
+		return  repository.entrySet().stream().filter(cache-> cacheFilters.stream().anyMatch(filter-> 
+		cache.getValue().contains(new DistributedCacheAttribute(filter.getAttributeName(),
+				filter.getAttributeValue())))).map(z->z.getKey()).collect(Collectors.toList());
 	}
 
 }
